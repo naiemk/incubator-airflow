@@ -10,9 +10,9 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-
+import logging
 import yaml
-from .kubernetes_request_factory import *
+from .kubernetes_request_factory import KubernetesRequestFactory, KubernetesRequestFactoryHelper as kreq
 
 
 class SimpleJobRequestFactory(KubernetesRequestFactory):
@@ -21,7 +21,7 @@ class SimpleJobRequestFactory(KubernetesRequestFactory):
     """
 
     def __init__(self):
-        pass
+        super(SimpleJobRequestFactory, self).__init__()
 
     _yaml = """apiVersion: batch/v1
 kind: Job
@@ -43,18 +43,19 @@ spec:
       restartPolicy: Never
     """
 
-    def create(self, pod):
+    def create_body(self, pod):
         req = yaml.load(self._yaml)
-        extract_name(pod, req)
-        extract_labels(pod, req)
-        extract_image(pod, req)
-        extract_cmds(pod, req)
+        kreq.extract_name(pod, req)
+        kreq.extract_labels(pod, req)
+        kreq.extract_image(pod, req)
+        kreq.extract_cmds(pod, req)
         if len(pod.node_selectors) > 0:
-            extract_node_selector(pod, req)
-        extract_secrets(pod, req)
-        print("attaching volume mounts")
-        attach_volume_mounts(req)
+            kreq.extract_node_selector(pod, req)
+            kreq.extract_secrets(pod, req)
+        logging.info("attaching volume mounts")
+        kreq.attach_volume_mounts(req)
         return req
 
-
+    def after_create(self, body, pod):
+        pass
 

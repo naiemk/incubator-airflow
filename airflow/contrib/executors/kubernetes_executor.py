@@ -30,7 +30,6 @@ import json
 # TODO this is just for proof of concept. remove before merging.
 
 
-
 def _prep_command_for_container(command):
     """  
     When creating a kubernetes pod, the yaml expects the command
