@@ -40,7 +40,7 @@ class Pod:
             labels=None,
             node_selectors=None,
             name=None,
-            namespace='default',
+            namespace=None,
             result=None,
             configs=None):
         if envs is None:
@@ -53,7 +53,7 @@ class Pod:
         self.configs = configs or []
         self.result = result
         self.name = name
-        self.node_selectors = node_selectors
+        self.node_selectors = node_selectors or []
         self.namespace = namespace
 
 

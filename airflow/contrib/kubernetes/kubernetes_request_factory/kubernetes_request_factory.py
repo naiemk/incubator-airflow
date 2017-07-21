@@ -71,7 +71,7 @@ class KubernetesRequestFactoryHelper(object):
 
     @staticmethod
     def extract_image(pod, req):
-        req['spec']['template']['spec']['containers'][0]['image'] = pod.image
+        req['spec']['containers'][0]['image'] = pod.image
 
     @staticmethod
     def add_secret_to_env(env, secret):
@@ -92,7 +92,7 @@ class KubernetesRequestFactoryHelper(object):
 
     @staticmethod
     def extract_cmds(pod, req):
-        req['spec']['template']['spec']['containers'][0]['command'] = pod.cmds
+        req['spec']['containers'][0]['command'] = pod.cmds
 
     @staticmethod
     def extract_node_selector(pod, req):
@@ -114,7 +114,7 @@ class KubernetesRequestFactoryHelper(object):
         logging.info("preparing to import dags")
         dag_importer.import_dags()
         logging.info("using file mount {}".format(dag_importer.dag_import_spec))
-        req['spec']['template']['spec']['volumes'] = [dag_importer.dag_import_spec]
+        req['spec']['volumes'] = [dag_importer.dag_import_spec]
 
     @staticmethod
     def extract_name(pod, req):
@@ -147,11 +147,13 @@ class KubernetesRequestFactoryHelper(object):
             req['spec']['containers'][0]['lifecycle'] = {}
             lifecycle = req['spec']['containers'][0]['lifecycle']
             lifecycle['postStart'] = {
-                'exec': ['/bin/bash', '-c',
-                         'echo -n $CONFIG_DATA | base64 -d > /tmp/config_setup.sh && /bin/bash /tmp/config_setup.sh']}
+                'exec': {
+                   'command': ['/bin/bash', '-c',
+                              'echo -n $CONFIG_DATA | base64 -d > /tmp/config_setup.sh && /bin/bash /tmp/config_setup.sh']}}
             req['spec']['containers'][0]['env'] = req['spec']['containers'][0].get('env', [])
             req['spec']['containers'][0]['env'].append({
-                'CONFIG_DATA': KubernetesRequestFactoryHelper._config_setup(pod.configs)})
+                'name': 'CONFIG_DATA',
+                'value': KubernetesRequestFactoryHelper._config_setup(pod.configs)})
 
     @staticmethod
     def sanitize_name(name):
@@ -170,4 +172,4 @@ class KubernetesRequestFactoryHelper(object):
             config_script += "cat<<_EOF_>{}\n".format(c.file_name)
             config_script += json.dumps(c.json_config)
             config_script += "\n_EOF_\n"
-        return base64.b64decode(config_script)
+        return base64.b64encode(config_script)

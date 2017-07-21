@@ -80,7 +80,7 @@ class KubernetesLauncher:
         req = self.request_factory.create(self.pod)
         logging.info(json.dumps(req))
         self._delete_existing_pod(k8s_beta)
-        resp = k8s_beta.create_namespaced_pod(body=req, namespace=self.pod.namespace)
+        resp = k8s_beta.create_namespaced_pod(body=req, namespace=self.pod.namespace or incluster_namespace())
         logging.info("Job created. status='%s', request:\n%s" % (str(resp.status), str(req)))
         for i in range(1, self.pod_timeout):
             time.sleep(10)
