@@ -49,6 +49,7 @@ spec:
         kreq.extract_secrets(pod, req)
         kreq.extract_volume_secrets(pod, req)
         kreq.extract_injectable_configs(pod, req)
+        kreq.extract_privileged(pod, req)
         return req
 
     def after_create(self, body, pod):

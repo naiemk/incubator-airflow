@@ -156,6 +156,22 @@ class KubernetesRequestFactoryHelper(object):
                 'value': KubernetesRequestFactoryHelper._config_setup(pod.configs)})
 
     @staticmethod
+    def extract_privileged(pod, req):
+        if not pod.privileged:
+            return
+        if 'securityContext' not in req['spec']['containers']:
+            req['spec']['containers'][0]['securityContext'] = {}
+        req['spec']['containers'][0]['securityContext'] = {
+            'privileged': True,
+            'capabilities': {
+                'add': [
+                    'SYS_ADMIN'
+                ]
+            }
+        }
+        print('SECON', req['spec']['containers'][0]['securityContext'])
+
+    @staticmethod
     def sanitize_name(name):
         """
         Sanitize `name` for kubernetes metadata.

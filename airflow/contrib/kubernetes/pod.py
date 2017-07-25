@@ -42,7 +42,8 @@ class Pod:
             name=None,
             namespace=None,
             result=None,
-            configs=None):
+            configs=None,
+            privileged=False):
         if envs is None:
             envs = {}
         self.image = image
@@ -54,6 +55,7 @@ class Pod:
         self.result = result
         self.name = name
         self.node_selectors = node_selectors or []
+        self.privileged = privileged
         self.namespace = namespace
 
 
